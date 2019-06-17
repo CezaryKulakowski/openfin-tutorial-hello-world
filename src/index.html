@@ -5,11 +5,37 @@
     <title></title>
 </head>
 <body>
+
+<script type="text/javascript" charset="utf-8">
+launch_tests = function() {
+  const electron = require('electron');
+  const path = require('path');
+  const fs = require('fs');
+  let filter = document.getElementById("tests_filter").value;
+  index_file = path.normalize(__dirname + '/../../../../../electron/spec/static/index.html');
+  if (!fs.existsSync(index_file)) {
+    alert("File " + index_file + " does not exist.");
+    return;
+  }
+  let win = new electron.remote.BrowserWindow({
+      width: 800,
+      height: 600,
+      webPreferences: { additionalArguments: [ "--tests-filter=" + filter ] }
+  });
+  win.on('closed', () => {
+    win = null;
+  });
+  win.loadFile(index_file);
+}
+</script>
+
 <h2>Hello from OpenFin</h2>
 <p>This is a starting point for your OpenFin apps</p>
 <p>No frameworks, libraries or build systems.</p>
 <p>It has unit testing set up (using Karma/Jasmine).</p>
 <p>It also has a ultra simple Node/Express server. Launch it in the Command line with 'node server' from the root directory.</p>
+Tests filter: <input type="text" id="tests_filter">
+<button onclick="launch_tests();">Launch tests</a><br>
 </body>
 </html>
 <script src="js/index.js"></script>
