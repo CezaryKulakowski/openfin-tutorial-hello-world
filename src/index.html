@@ -45,9 +45,7 @@ launch_tests = function() {
 <p>It also has a ultra simple Node/Express server. Launch it in the Command line with 'node server' from the root directory.</p>
 
 <script type="text/javascript" charset="utf-8">
-const electron = require('electron');
-const commandLineArguments = electron.remote.app.getCommandLineArguments();
-if (commandLineArguments.includes('--enable-electron-apis')) {
+if (typeof process !== 'undefined' && process.argv.indexOf('--enable-electron-apis') !== -1) {
   document.write('Tests filter: <input type="text" id="tests_filter">');
   document.write('<button onclick="launch_tests();">Launch tests</a><br>');
 }
