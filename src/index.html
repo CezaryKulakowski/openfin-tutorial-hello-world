@@ -7,7 +7,7 @@
 <body>
 
 <script type="text/javascript" charset="utf-8">
-launch_tests = function() {
+launch_tests = async function() {
   const electron = require('electron');
   const path = require('path');
   const fs = require('fs');
@@ -26,15 +26,20 @@ launch_tests = function() {
     alert("File " + index_file + " does not exist.");
     return;
   }
-  let win = new electron.remote.BrowserWindow({
-      width: 800,
-      height: 600,
-      webPreferences: { additionalArguments: [ "--tests-filter=" + filter ] }
-  });
-  win.on('closed', () => {
-    win = null;
-  });
-  win.loadFile(index_file);
+
+  const winOption = {
+      name:'tests',
+      defaultWidth: 800,
+      defaultHeight: 600,
+      frame: true,
+      autoShow: true
+  };
+  url = index_file
+  if (filter.length) {
+    url += "?tests-filter=" + filter
+  }
+  win = await fin.Window.create(winOption);
+  win.navigate(url)
 }
 </script>
 
