@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", function(){
     init();
+  console.log('DOMContentLoaded');
 });
 
-function init(){
+async function init(){
     /* Code common to both OpenFin and browser to go above.
      Then the specific code for OpenFin and browser only to be
      targeted in the try/catch block below.
@@ -17,11 +18,14 @@ function init(){
 };
 
 function initWithOpenFin(){
-    alert("OpenFin is available");
+    //alert("OpenFin is available");
     // Your OpenFin specific code to go here...
+    //fin.System.startCrashReporter({diagnosticMode: false}).then(reporter => console.log(reporter)).catch(err => console.log(err));
 }
 
 function initNoOpenFin(){
     alert("OpenFin is not available - you are probably running in a browser.");
     // Your browser-only specific code to go here...
+    //var r = confirm("CONFIRM, DAMN IT!");
+    //console.warn("CONFIRM: " + r);
 }

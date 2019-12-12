@@ -7,40 +7,197 @@
 <body>
 
 <script type="text/javascript" charset="utf-8">
-launch_tests = async function() {
-  const electron = require('electron');
-  const path = require('path');
-  const fs = require('fs');
 
-  // First check if nodejs modules required by tests has been fetched.
-  node_modules_dir = path.normalize(__dirname + '/../../../../../electron/spec/node_modules');
-  if (!fs.existsSync(node_modules_dir)) {
-    alert("Directory " + node_modules_dir + " does not exist.\n Run \"npm run test\" " +
-          "in directory electron to fetch needed nodejs modules.");
-    return;
-  }
+let utils = {};
 
-  let filter = document.getElementById("tests_filter").value;
-  index_file = path.normalize(__dirname + '/../../../../../electron/spec/static/index.html');
-  if (!fs.existsSync(index_file)) {
-    alert("File " + index_file + " does not exist.");
-    return;
-  }
+utils.url = window.location.origin + '/agents/JavaScript/app.html';
+utils.wnd = fin.desktop.Window.getCurrent();
 
-  const winOption = {
-      name:'tests',
-      defaultWidth: 800,
-      defaultHeight: 600,
-      frame: true,
-      autoShow: true
-  };
-  url = index_file
-  if (filter.length) {
-    url += "?tests-filter=" + filter
+utils.getUuid = function() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+};
+
+function completionCallback(res, err) {
+  console.warn('Test finished with result: ' + res);
+  if (!res) {
+    console.warn('Error: ' + err);
   }
-  win = await fin.Window.create(winOption);
-  win.navigate(url)
 }
+
+function updateTest(obj) {
+  console.warn(obj);
+}
+
+utils.hostConfig = function(json, callback) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 201) {
+                if (typeof callback === 'function') {
+                    callback(null, xhr.responseText);
+                }
+            } else {
+                if (typeof callback === 'function') {
+                    callback(xhr.statusText);
+                }
+            }
+        }
+    };
+
+    xhr.open('POST', 'https://testing-dashboard.openfin.co/config-file', true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.send(JSON.stringify(json));
+};
+
+utils.createWindow = function(args, callback) {
+    var code;
+
+    args = args || {};
+
+    // Support old signatures
+    args._code = args._code || args.code;
+    args._codeOM = args._codeOM || args.codeOM;
+
+    utils_url = window.location.origin + '/agents/JavaScript/app.html';
+    args.url = args.url || utils_url;
+    (args.url.indexOf('?') === -1) && (args.url += '?');
+    args.url += '&testName=' + window.encodeURIComponent(window.testName);
+        
+    if(args._responseHeaders) {
+        args.url += '&responseHeaders=' + window.encodeURIComponent(JSON.stringify(args._responseHeaders));
+    }  
+
+    // Code
+    if (typeof args._code === 'function') {
+        code = args._code.toString();
+        code = code.slice(code.indexOf('{') + 1, -1);
+        args.url += '&code=' + window.encodeURIComponent(code);
+    } else if (typeof args._code === 'string') {
+        args.url += '&code=' + window.encodeURIComponent(args._code);
+    }
+
+    // Code outside of fin.desktop.main (OM)
+    if (typeof args._codeOM === 'function') {
+        code = args._codeOM.toString();
+        code = code.slice(code.indexOf('{') + 1, -1);
+        args.url += '&codeOM=' + window.encodeURIComponent(code);
+    } else if (typeof args._codeOM === 'string') {
+        args.url += '&codeOM=' + window.encodeURIComponent(args._codeOM);
+    }
+
+    // With iFrame
+    if (args._withIframe === true) {
+        args.url += '&withIframe=true';
+    }
+    // With CORS iFrame
+    else if (args._withCorsIframe === true) {
+        args.url += '&withCorsIframe=true';
+    }
+    // Within iFrame
+    else if (args._withinIframe === true) {
+        args.url += '&withinIframe=true';
+    }
+    // Within CORS iFrame
+    else if (args._withinCorsIframe === true) {
+        args.url += '&withinCorsIframe=true';
+    }
+
+    args.name = args.name || utils_getUuid();
+    (args.autoShow !== false) && (args.autoShow = true);
+    args.defaultTop = args.defaultTop || 220;
+    args.defaultLeft = args.defaultLeft || 0;
+    args.defaultWidth = args.defaultWidth || 300;
+    args.defaultHeight = args.defaultHeight || 120;
+
+  return new fin.desktop.Window(args,
+    function() {
+        if (typeof callback === 'function') {
+            callback(true);
+        }
+    },
+    function(error) {
+        if (typeof callback === 'function') {
+            callback(false, error);
+        }
+    });
+}
+
+async function launch_tests_file_lock() {
+  //l = fileLock.tryLock('dupa');
+  //console.warn(module);
+  const res = await fin.System.getFocusedExternalWindow();
+  console.warn(res);
+}
+
+async function launch_tests_tray_icon() {
+  const base64EncodedImage = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABKVBMVEUAAABSTf9QTP9TUP9RTf9jXP9PS/9SUP9OSv9QTf9TTv9VUP9PSf9RTv9WTv9KRv9RTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTf9QTP9QTP9QTP9UUP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9TTv9RTf9QTP9QTP9QTP9QTP9RTf9QTP9QTP9QTf9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9RTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9RTf9QTP9QTP9QTP9QTf9QTP9QTP9QTP9TT/9QTP9UUf9QTP////+c69uyAAAAYXRSTlMAAAAAAAAAAAAAAAAAAAAADm3R+PnScA8QmZwSfP2AAR/a3CFHS1T8/l478n0Rwr9Q7QEDXexsDQJIPAEmb5qrzve+eVoe2/PDE1gN7i9uzxSs0FcOLg4S3voT3cBKAV8BobrzZQAAAAFiS0dEYiu5HTwAAAAHdElNRQfiAgQJJyMViSyGAAABjklEQVQ4y31TeV+CQBBdRzqorBQENDQTz9LSsLIShQ5LLY+s7DCN7/8lEmHXa3P+25n3e/vmzQxCJFyw6/VxvF8QwY1oAVKAM0fBB/eAVmdW5JA5jlB4n6ERRA5MJ6IKjQJiHAbwcSogkcSAVJoKODzCADMDFBGQPSaAE5FCwUAuT0R4TykUjFqIphzE2fnF6hrOFyOXiavsOoPY65JWruiGheBubu9i90XG8k+ucsmHx5xqkW5sqrW63+mFq8oSoEbA9u+psMWOGT3w7MNakoEGahrOo1oCrLaOc6bRRC3SWxO2nYbbOkm2EPHXLO8wuJ0OSXJTgI5KBRBBpt6GxS9ekEAojK49AXZKJCeg12AIv3xv4JltMxR8R9ALf3w6Dvu6NVX96mKj+O9wDyyrlXha7o9/MvQKtrovp3+UIksWWtTIKK3IayK4Zkc50PhJndcGC+MGqT8B9KXFhXFBZgLIzPHbFEO8LWZqSF3aOBHxz9or0eWHw/yGl5/eyNMgbx9vj3q8yA2i4Ofnz/8PB9agG+57b98AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTgtMDItMDRUMDk6Mzk6MzUrMDE6MDDl1ju7AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE4LTAyLTA0VDA5OjM5OjM1KzAxOjAwlIuDBwAAAFd6VFh0UmF3IHByb2ZpbGUgdHlwZSBpcHRjAAB4nOPyDAhxVigoyk/LzEnlUgADIwsuYwsTIxNLkxQDEyBEgDTDZAMjs1Qgy9jUyMTMxBzEB8uASKBKLgDqFxF08kI1lQAAAABJRU5ErkJggg==";
+
+  const app = await fin.Application.getCurrent();
+  return await app.setTrayIcon(base64EncodedImage);
+}
+
+async function launch_tests_calc() {
+  console.log('START');
+  fin.desktop.System.launchExternalProcess({
+    alias: 'calc'
+  }, function () {
+    console.log('LAUNCH CALC SUCCEDDED');
+  }, function(err) {
+    console.log('LAUNCH CALC FAILED: ' + err);
+  });
+  console.log('END');
+}
+
+async function launch_tests() {
+  const uuid = utils.getUuid()
+  const wnd = await fin.Window.getCurrent()
+  const version = await fin.System.getVersion()
+  
+  const code = `
+    (async () => {
+      const initialWnd = await fin.Window.wrap({ uuid: '${utils.wnd.uuid}', name: '${utils.wnd.name}' })
+      const currentWnd = await fin.Window.getCurrent()
+      await currentWnd.joinGroup(initialWnd)
+      await currentWnd.moveBy(10, 10)
+	  await initialWnd.minimize()
+	  currentWnd.close()
+    })()
+  `
+  
+  const config = {
+    runtime: {
+      version,
+      arguments: `--security-realm=${uuid} --enable-mesh`
+    },
+    startup_app: {
+      uuid,
+      name: uuid,
+      url: `${utils.url}?code=${encodeURIComponent(code)}`,
+      autoShow: true
+    }
+  }
+  
+  await wnd.on('bounds-changed', () => completionCallback(true))
+    .catch(e => completionCallback(false, "1: " + e.message))
+  
+  await wnd.on('minimized', () => completionCallback(false, `Grouped window didn't move`))
+    .catch(e => completionCallback(false, "2: " + e.message))
+
+  utils.hostConfig(config, async (error, configURL) => {
+    if (error) {
+      return completionCallback(false, error)
+    }
+
+    await fin.Application.startFromManifest(configURL)
+      .catch(e => completionCallback(false, "3: " + e.message))
+  })
+}
+
 </script>
 
 <h2>Hello from OpenFin</h2>
@@ -49,11 +206,14 @@ launch_tests = async function() {
 <p>It has unit testing set up (using Karma/Jasmine).</p>
 <p>It also has a ultra simple Node/Express server. Launch it in the Command line with 'node server' from the root directory.</p>
 
+<!--
+<object data="http://www.africau.edu/images/default/sample.pdf" type="application/pdf" width="500px" height="500px" style="border: 1px solid red;"></object></br>
+-->
+
 <script type="text/javascript" charset="utf-8">
-if (typeof process !== 'undefined' && process.argv.indexOf('--enable-electron-apis') !== -1) {
+  fin.System.startCrashReporter({diagnosticMode: true}).then(reporter => console.log(reporter)).catch(err => console.log(err));
   document.write('Tests filter: <input type="text" id="tests_filter">');
   document.write('<button onclick="launch_tests();">Launch tests</a><br>');
-}
 </script>
 
 </body>

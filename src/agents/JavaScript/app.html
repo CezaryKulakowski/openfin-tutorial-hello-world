@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<head>
+    <title>JS Test</title>
+</head>
+<body>
+<div id="type"></div>
+<div id="parentTest" style=""></div>
+<div id="title"></div>
+
+<script type="text/javascript">
+    var hasCodeToExecute;
+    var hasIframeParams;
+    var iFrameUrl;
+    var params;
+    var thisIsIframe = getIsInIframe();
+    var typeEl = document.querySelector('#type');
+    var urlNoParams = location.origin + location.pathname;
+    var withAnyIframe; // with iFrame or CORS iFrame
+    var withinAnyIframe; // within iFrame or CORS iFrame
+
+    //========================================================================
+    //   Initial setup and url argument processing
+    //========================================================================
+    params = getSearchParameters();
+
+    hasCodeToExecute = params.code || params.codeOM;
+    withAnyIframe = params.withIframe || params.withCorsIframe;
+    withinAnyIframe = params.withinIframe || params.withinCorsIframe;
+    hasIframeParams = withAnyIframe || withinAnyIframe;
+
+    if (thisIsIframe) {
+        // When in an iFrame, add an indicator
+        typeEl.innerText = 'iFrame';
+
+        if (!location.host.includes('localhost')) {
+            // CORS iFrame
+            typeEl.innerText = 'CORS ' + typeEl.innerText;
+        }
+    } else {
+        // Set whether it's a new app or window
+        typeEl.innerText = window.opener === null ? 'JS App' : 'JS Child Window';
+    }
+
+    // Handle all the url parameters
+    // Set parent test name
+    if (params.testName && !thisIsIframe) {
+        document.querySelector('#parentTest').innerText = 'Parent name: ' + decodeURIComponent(params.testName);
+    }
+
+    // Set title
+    if (params.title) {
+        document.querySelector('#title').innerText = 'Title: ' + decodeURIComponent(params.title);
+    }
+
+
+    //========================================================================
+    //   iFrame logic and running code
+    //========================================================================
+
+    // When having iFrames, indicate who executes code
+    if (thisIsIframe || hasIframeParams) {
+        if (hasCodeToExecute && (thisIsIframe || !withinAnyIframe)) {
+            typeEl.innerText += ' (executes code)';
+        } else {
+            typeEl.innerText += ' (no code)';
+        }
+    }
+
+    // Set iFrame styling
+    if (thisIsIframe) {
+        document.body.style.margin = '4px';
+    }
+
+    if (withinAnyIframe && !thisIsIframe) {
+
+        // Don't run code in this page, but create and add an
+        // iFrame that will execute the code within itself
+
+        // full URL with parameters for iFrame to execute
+        iFrameUrl = params.withinCorsIframe ? toCors(location.href) : location.href;
+
+        addIframe(iFrameUrl);
+
+    } else {
+
+        if (withAnyIframe) {
+
+            // Create and add an iFrame to exist on this page, but don't give it any
+            // parameters so that it won't be executing any code
+            iFrameUrl = params.withCorsIframe ? toCors(urlNoParams) : urlNoParams;
+
+            addIframe(iFrameUrl);
+        }
+
+        // Run test code in this page
+        run();
+    }
+
+
+    //========================================================================
+    //   Get utils module and run JS code
+    //========================================================================
+    function run() {
+        if (!hasCodeToExecute) {
+            return;
+        }
+
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+            if (this.readyState === 4 && this.status === 200) {
+
+                // Utils module
+                eval(xhttp.responseText);
+
+                // Evaluate user's code outside fin.desktop.main
+                if (params.codeOM) {
+                    eval(decodeURIComponent(params.codeOM));
+                }
+
+                // Evaluate user's code inside fin.desktop.main by default
+                if (params.code) {
+                    fin.desktop.main(function() {
+                        eval(decodeURIComponent(params.code));
+                    });
+                }
+
+            }
+        };
+
+        xhttp.open('GET', 'lib/utils.js', true);
+        xhttp.send();
+    }
+
+    //========================================================================
+    //   Custom console.log
+    //========================================================================
+    function customConsoleLog() {
+        var vals = Array.prototype.slice.call(arguments);
+        var stringified = [];
+        var joined;
+
+        vals.forEach(function(val) {
+            stringified.push(JSON.stringify(val, null, 4));
+        });
+
+        joined = stringified.join('');
+
+        fin.desktop.InterApplicationBus.publish('custom console log', joined);
+
+        console.log(vals);
+    }
+
+
+    //=====================================================================
+    // Get url params
+    //=====================================================================
+    function getSearchParameters() {
+        var prmstr = window.location.search.substr(1);
+        return (prmstr !== null && prmstr !== '') ? transformToAssocArray(prmstr) : {};
+    }
+    function transformToAssocArray(prmstr) {
+        var params = {};
+        var prmarr = prmstr.split('&');
+
+        for (var i = 0; i < prmarr.length; i++) {
+            var tmparr = prmarr[i].split('=');
+            params[tmparr[0]] = tmparr[1];
+        }
+
+        return params;
+    }
+
+    //=====================================================================
+    // Returns whether the page is inside an iFrame
+    //=====================================================================
+    function getIsInIframe() {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
+    }
+
+    //=====================================================================
+    // Create and add an iFrame to the page
+    //=====================================================================
+    function addIframe(url) {
+        var iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.width = '265px';
+        iframe.height = '27px';
+        iframe.style.marginTop = '5px';
+        document.body.appendChild(iframe);
+    }
+
+    //=====================================================================
+    // Replace URL to CORS
+    //=====================================================================
+    function toCors(str) {
+        return str.replace('localhost', '127.0.0.99');
+    }
+
+</script>
+</body>
+</html>
