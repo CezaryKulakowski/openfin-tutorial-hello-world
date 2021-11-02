@@ -4,56 +4,51 @@
     "name": "OpenFin appseed",
     "description": "A vanilla appseed for OpenFin applications",
     "url": "http://localhost:9070/index.html",
-    "componentName": "browserView",
-    "showDevTools": true,
-    "uuid": "openfin-closing-events-demo",
+    "uuid": "openfin-closing-events-demo43",
     "autoShow": true,
-    "waitForPageLoad": false,
-    "accelerator": { "devtools": true },
     "plugins": true,
+    "icon": "https://google.com/favicon.ico",
+    "_icon": "https://www.snapple.com/images/favicon.ico",
+    "_icon": "http://localhost:9070/openfin.png",
+    "showTashbarIcon": true,
+    "waitForPageLoad": false,
+    "accelerator": {
+      "zoom": true,
+      "devtools": true
+    },
     "permissions": {
       "System": {
         "downloadAsset": true,
+        "getAllExternalWindows": true,
         "launchExternalProcess": true,
         "readRegistryValue": true,
         "terminateExternalProcess": true
       },
       "ExternalWindow": {
         "wrap" : true
-      }
-    }
-  },
-  "applicationSettings": {
-    "MyPolicies": {
-      "urls": ["http://localhost:9070/app.json"],
-      "permissions": {
-        "System": {
-          "launchExternalProcess": true
-        }
-      }
+      },
+      "Window": {
+        "animate": true
+      },
+      "webAPIs": [
+        "notifications",
+        "openExternal"
+      ]
     },
-    "default": {
-      "permissions": {
-        "System": {
-          "downloadAsset": true,
-          "launchExternalProcess": true,
-          "readRegistryValue": true,
-          "terminateExternalProcess": true
-        }
+    "customRequestHeaders": [
+      {
+        "urlPatterns": [ "https://www.example.com" ],
+        "headers": [ "a:b" ]
       }
-    }
+    ]
   },
-  "appAssets": [
-     {
-       "src": "http://localhost:9070/assets/calc.zip",
-       "alias": "calc",
-       "target": "_calc.bat",
-       "version": "0.1"
-     }
+  "extensions": [
+    {
+      "url": "L:\\views\\extension-example\\windows"
+    }
   ],
-  "shortcut": {
-    "company": "OpenFin",
-    "description": "OpenFin appseed",
-    "name": "OpenFin appseed"
+  "runtime": {
+    "version": "23.94.64.14",
+    "arguments": "--inspect"
   }
 }

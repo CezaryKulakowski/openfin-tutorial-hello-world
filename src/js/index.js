@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", function(){
-    init();
+  //window.onbeforeunload = () => {
+  //  return "";
+  //};
+  init();
   console.log('DOMContentLoaded');
 });
 
@@ -24,7 +27,7 @@ function initWithOpenFin(){
 }
 
 function initNoOpenFin(){
-    alert("OpenFin is not available - you are probably running in a browser.");
+    //alert("OpenFin is not available - you are probably running in a browser.");
     // Your browser-only specific code to go here...
     //var r = confirm("CONFIRM, DAMN IT!");
     //console.warn("CONFIRM: " + r);

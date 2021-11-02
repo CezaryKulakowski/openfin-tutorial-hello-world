@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,6 +30,10 @@ function completionCallback(res, err) {
 
 function updateTest(obj) {
   console.warn(obj);
+}
+
+sleep = function(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 utils.hostConfig = function(json, callback) {
@@ -107,7 +111,7 @@ utils.createWindow = function(args, callback) {
         args.url += '&withinCorsIframe=true';
     }
 
-    args.name = args.name || utils_getUuid();
+    args.name = args.name || utils.getUuid();
     (args.autoShow !== false) && (args.autoShow = true);
     args.defaultTop = args.defaultTop || 220;
     args.defaultLeft = args.defaultLeft || 0;
@@ -135,10 +139,24 @@ async function launch_tests_file_lock() {
 }
 
 async function launch_tests_tray_icon() {
+  /*
   const base64EncodedImage = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABKVBMVEUAAABSTf9QTP9TUP9RTf9jXP9PS/9SUP9OSv9QTf9TTv9VUP9PSf9RTv9WTv9KRv9RTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTf9QTP9QTP9QTP9UUP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9TTv9RTf9QTP9QTP9QTP9QTP9RTf9QTP9QTP9QTf9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9RTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9QTP9RTf9QTP9QTP9QTP9QTf9QTP9QTP9QTP9TT/9QTP9UUf9QTP////+c69uyAAAAYXRSTlMAAAAAAAAAAAAAAAAAAAAADm3R+PnScA8QmZwSfP2AAR/a3CFHS1T8/l478n0Rwr9Q7QEDXexsDQJIPAEmb5qrzve+eVoe2/PDE1gN7i9uzxSs0FcOLg4S3voT3cBKAV8BobrzZQAAAAFiS0dEYiu5HTwAAAAHdElNRQfiAgQJJyMViSyGAAABjklEQVQ4y31TeV+CQBBdRzqorBQENDQTz9LSsLIShQ5LLY+s7DCN7/8lEmHXa3P+25n3e/vmzQxCJFyw6/VxvF8QwY1oAVKAM0fBB/eAVmdW5JA5jlB4n6ERRA5MJ6IKjQJiHAbwcSogkcSAVJoKODzCADMDFBGQPSaAE5FCwUAuT0R4TykUjFqIphzE2fnF6hrOFyOXiavsOoPY65JWruiGheBubu9i90XG8k+ucsmHx5xqkW5sqrW63+mFq8oSoEbA9u+psMWOGT3w7MNakoEGahrOo1oCrLaOc6bRRC3SWxO2nYbbOkm2EPHXLO8wuJ0OSXJTgI5KBRBBpt6GxS9ekEAojK49AXZKJCeg12AIv3xv4JltMxR8R9ALf3w6Dvu6NVX96mKj+O9wDyyrlXha7o9/MvQKtrovp3+UIksWWtTIKK3IayK4Zkc50PhJndcGC+MGqT8B9KXFhXFBZgLIzPHbFEO8LWZqSF3aOBHxz9or0eWHw/yGl5/eyNMgbx9vj3q8yA2i4Ofnz/8PB9agG+57b98AAAAldEVYdGRhdGU6Y3JlYXRlADIwMTgtMDItMDRUMDk6Mzk6MzUrMDE6MDDl1ju7AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDE4LTAyLTA0VDA5OjM5OjM1KzAxOjAwlIuDBwAAAFd6VFh0UmF3IHByb2ZpbGUgdHlwZSBpcHRjAAB4nOPyDAhxVigoyk/LzEnlUgADIwsuYwsTIxNLkxQDEyBEgDTDZAMjs1Qgy9jUyMTMxBzEB8uASKBKLgDqFxF08kI1lQAAAABJRU5ErkJggg==";
 
   const app = await fin.Application.getCurrent();
   return await app.setTrayIcon(base64EncodedImage);
+  */
+    var app = fin.desktop.Application.getCurrent();
+
+    app.setTrayIcon(
+        'https://demoappdirectory.openf.in/desktop/config/apps/OpenFin/HelloOpenFin/img/openfin.png',
+        function() {},
+        function() {
+          console.warn('OK');
+        },
+        function(error) {
+          console.warn(`ERROR: ${error}`);
+        }
+    );
 }
 
 async function launch_tests_calc() {
@@ -153,50 +171,712 @@ async function launch_tests_calc() {
   console.log('END');
 }
 
+async function create_window(name) {
+  const winOption = {
+      name: name,
+      defaultWidth: 300,
+      defaultHeight: 300,
+      url: 'http://www.example.com',
+      autoShow: true,
+      frame: true
+  };
+  const win = await fin.Window.create(winOption);
+  win.on("will-resize", function(event) {
+    console.warn('\nON WILL RESIZE\n');
+    console.warn(event);
+  });
+  return win;
+}
+
 async function launch_tests() {
-  const uuid = utils.getUuid()
-  const wnd = await fin.Window.getCurrent()
-  const version = await fin.System.getVersion()
+  await create_window("win1");
+  await create_window("win2");
+  await create_window("win3");
   
-  const code = `
-    (async () => {
-      const initialWnd = await fin.Window.wrap({ uuid: '${utils.wnd.uuid}', name: '${utils.wnd.name}' })
-      const currentWnd = await fin.Window.getCurrent()
-      await currentWnd.joinGroup(initialWnd)
-      await currentWnd.moveBy(10, 10)
-	  await initialWnd.minimize()
-	  currentWnd.close()
-    })()
-  `
-  
-  const config = {
-    runtime: {
-      version,
-      arguments: `--security-realm=${uuid} --enable-mesh`
-    },
-    startup_app: {
-      uuid,
-      name: uuid,
-      url: `${utils.url}?code=${encodeURIComponent(code)}`,
+  const win = await fin.Window.getCurrent();
+  await win.hide();
+  await win.show();
+}
+
+async function html5_notifications() {
+  var win1 = await create_window("win1");
+  await win1.navigate("https://www.bennish.net/web-notifications.html");
+  var win2 = await create_window("win2");
+  await win2.navigate("https://www.bennish.net/web-notifications.html");
+}
+
+async function crash_browser() {
+  const win = await fin.Window.getCurrent();
+  win.navigate('chrome://inducebrowsercrashforrealz');
+  //const app = await fin.Application.getCurrent();
+  //const level = await app.getZoomLevel();
+  //console.warn(level);
+  //let a = [];
+  //while (1) {
+  //  a.push(Math.random() * 9999999);
+  //}
+}
+
+async function crash_renderer() {
+  const win = await fin.Window.getCurrent();
+  win.navigate('chrome://crash');
+}
+
+async function onExtWindowShow(e) {
+  if (e.name !== 'Notepad') {
+    return;
+  }
+  console.warn('\n\nNotepad shown\n\n');
+  let notepadWindow = await fin.ExternalWindow.wrap({ uuid: e.uuid });
+  console.log('--uuid: ', notepadWindow);
+  notepadWindow.on('focused', async () => {
+    console.warn('\n\non notepad win focused\n\n');
+  });
+  const mainWin = await fin.Window.getCurrent();
+  mainWin.on('focused', async () => {
+    console.warn('\n\non main win focused\n\n');
+  });
+  await mainWin.focus();
+  await notepadWindow.focus();
+}
+
+async function focus_test() {
+  await fin.System.on('external-window-shown', onExtWindowShow);
+  const notepadExternalProcessUuid = (await fin.System.launchExternalProcess({
+    path: "notepad"
+  })).uuid;
+}
+
+test_flash = async function() {
+  var uuid1 = utils.getUuid();
+  var uuid2 = utils.getUuid();
+
+  var newApp1 = new fin.desktop.Application(
+    {
+      uuid: uuid1,
+      name: uuid1,
+      url: 'http://www.example.com',
       autoShow: true
+    },
+    function() {
+      newApp1.run();
+    });
+
+  var newApp2 = new fin.desktop.Application(
+    {
+      uuid: uuid2,
+      name: uuid2,
+      url: 'http://get.adobe.com/flashplayer/about/',
+      autoShow: true,
+      waitForPageLoad: false
+    },
+    function() {
+      newApp2.run();
+    });
+}
+
+create_window_v1 = function(name, callback) {
+  args = {};
+  args.name = name;
+  args.autoShow = true;
+  const win = new fin.desktop.Window(
+      args,
+      function() {
+        callback();
+      },
+      function(error) {
+        console.error(`Creation of the window failed with error ${error}`);
+      }
+  );
+  return win;
+}
+
+test_blur = async function() {
+  var wnd = create_window_v1('blur-test', async () => {
+    wnd.addEventListener('blurred', function(evt) {
+      if (evt.name === wnd.name && 
+          evt.topic === 'window' &&
+          evt.type === 'blurred' &&
+          evt.uuid === wnd.app_uuid) {
+        console.warn('Received blur event.');
+      }
+    });
+    
+    setTimeout(() => {
+      console.warn('Calling focus and blur...');
+      wnd.focus(function() {
+        wnd.blur();
+      });
+    }, 7000);
+  });
+}
+
+test_focus = async function() {
+  var win = create_window_v1('focus-test', async () => {
+    console.warn(win);
+    win.addEventListener(
+      'focused',
+      function() {
+        console.warn('Received focus event.');
+        console.warn(new Error().stack);
+      }, function() {
+          setTimeout(() => {
+            console.warn('Focusing window...');
+            win.focus();
+          }, 7000);
+      }
+    );
+  });
+}
+
+test_window_open = async function() {
+  window.open('http://www.example.com', 'test');
+}
+
+test_opacity = async function() {
+  const winOption = {
+    name: "opacity_test",
+    defaultWidth: 300,
+    defaultHeight: 300,
+    autoShow: true,
+    url: "http://www.example.com",
+    frame: false
+  };
+  const win = await fin.Window.create(winOption);
+  /*
+  setInterval(() => {
+    const newOpacity = Math.random();
+    console.warn(`Setting opacity ${newOpacity}`);
+    win.updateOptions({ opacity: newOpacity });
+  }, 1000);
+  */
+  setTimeout(() => {
+    win.updateOptions({ opacity: 0.25 });
+    setTimeout(() => {
+      win.updateOptions({ opacity: 1.0 });
+    }, 3000);
+  }, 3000);
+}
+
+intake_error = async function() {
+  const options = {
+    name: 'child',
+    contentNavigation: {
+      blacklist: ['https://example.com']
+    }
+  };
+
+  const win = await fin.Window.create(options);
+  try {
+    await win.navigate('https://example.com');
+  } catch (error) {
+    //completionCallback(error.toString().includes('-2'), error.toString());
+    console.warn('\nNAVIGATION FAILED: ' + error.toString() + '\n');
+    console.warn(error);
+    return;
+  }
+  console.warn('\nNAVIGATION SUCCEEDED\n\n');
+}
+
+test_window_center = async function() {
+  const win = await fin.Window.getCurrent();
+
+  const monitorInfo = await fin.System.getMonitorInfo();
+  const beforeBounds = await win.getBounds();
+
+  console.warn(monitorInfo);
+
+  const maxTop = monitorInfo.taskbar.scaledRect.top;
+  const maxLeft = monitorInfo.taskbar.scaledRect.right;
+
+  const expectedTop = Math.floor((maxTop - beforeBounds.height) / 2);
+  const expectedLeft = Math.floor((maxLeft - beforeBounds.width) / 2);
+
+  await win.center();
+
+  const afterBounds = await win.getBounds();
+
+  console.warn(afterBounds);
+  console.warn(`${expectedTop} == ${afterBounds.top} ; ${expectedLeft} == ${afterBounds.left}`);
+}
+
+isPointInRect = function (x, y, rect) {
+  console.warn(`isPointInRect: ${x}, ${y}`);
+  console.warn(rect);
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
+getMonitorRect = async function() {
+  const win = await fin.Window.getCurrent();
+  const windowBounds = await win.getBounds();
+  const monitorInfo = await fin.System.getMonitorInfo();
+  const monitorRect = monitorInfo.primaryMonitor.availableRect;
+  if (isPointInRect(windowBounds.left, windowBounds.top, monitorRect)) {
+    return monitorRect;
+  }
+  for (const monitor of monitorInfo.nonPrimaryMonitors) {
+    if (isPointInRect(windowBounds.left, windowBounds.top, monitor.availableRect)) {
+      return monitor.availableRect;
     }
   }
-  
-  await wnd.on('bounds-changed', () => completionCallback(true))
-    .catch(e => completionCallback(false, "1: " + e.message))
-  
-  await wnd.on('minimized', () => completionCallback(false, `Grouped window didn't move`))
-    .catch(e => completionCallback(false, "2: " + e.message))
-
-  utils.hostConfig(config, async (error, configURL) => {
-    if (error) {
-      return completionCallback(false, error)
-    }
-
-    await fin.Application.startFromManifest(configURL)
-      .catch(e => completionCallback(false, "3: " + e.message))
-  })
+  return undefined;
 }
+
+test_window_center2 = async function() {
+  const win = await fin.Window.getCurrent();
+  const monitorInfo = await fin.System.getMonitorInfo();
+  const beforeBounds = await win.getBounds();
+  console.warn(beforeBounds);
+  console.warn(monitorInfo);
+
+  //const monitorRect = monitorInfo.primaryMonitor.availableRect;
+  const monitorRect = await getMonitorRect();
+
+  const maxTop = monitorRect.bottom -
+                 monitorRect.top;
+  const maxLeft = monitorRect.right -
+                   monitorRect.left;
+
+  console.warn('DUPA');
+  console.warn(monitorRect);
+
+  const expectedTop = Math.floor((maxTop - beforeBounds.height) / 2) +
+                      monitorRect.top;
+  const expectedLeft = Math.floor((maxLeft - beforeBounds.width) / 2) +
+                      monitorRect.left;
+  await win.center();
+  const afterBounds = await win.getBounds();
+  console.warn(afterBounds);
+  console.warn(`${expectedTop} == ${afterBounds.top} ; ${expectedLeft} == ${afterBounds.left}`);
+}
+
+test_multi_runtime = async function() {
+  const runtimeVersion = await fin.System.getVersion();
+  const manifestUrl = 'http://localhost:9070/multi_runtime.json';
+  await fin.InterApplicationBus.subscribe({ uuid: '*' }, `ready1`, async () => {
+      console.warn('ready1 received');
+  });
+  fin.Application.startFromManifest(manifestUrl).then(app => console.warn('app started')).catch(err => console.warn(`app failed to start: ${err}`));
+}
+
+set_item = async function() {
+  localStorage.setItem("testKey", "testValue");
+}
+
+get_item = async function() {
+  console.warn(localStorage.getItem("testKey"));
+}
+
+open_new_window = function() {
+  window.open('http://localhost:9070/index.html');
+}
+
+test_cert_picker = async function() {
+  const winOpts = { name: 'test-cert-win', url: 'https://client-cert-test-dev.openfin.co/index.html' }
+  const win = fin.Window.wrapSync({ uuid: fin.me.identity.uuid, name: winOpts.name })
+
+  win.once('certificate-selection-shown', (event) => {
+    console.log(`received certificate-selection-shown: ${event}`);
+  });
+
+  fin.Window.create(winOpts);
+}
+
+start_second_app = async function() {
+  await fin.Platform.startFromManifest('http://localhost:9070/app3.json');
+  setTimeout( async () => {
+    const processInfo = await fin.System.getAllProcessInfo();
+    console.warn(`processInfo:`);
+    console.warn(processInfo);
+  }, 0);
+}
+
+create_child_window = async function() {
+    const winOption = {
+        name:'child',
+        defaultWidth: 300,
+        defaultHeight: 300,
+        url: 'https://www.example.com',
+        frame: true,
+        autoShow: true
+    };
+    return await fin.Window.create(winOption);
+}
+
+create_window_with_url = async function(name, url) {
+  const winOption = {
+      name,
+      defaultWidth: 300,
+      defaultHeight: 300,
+      url,
+      frame: true,
+      autoShow: true
+  };
+  return await fin.Window.create(winOption);
+}
+
+create_windows = async function() {
+  await create_window_with_url('1', 'https://www.example.com');
+  await create_window_with_url('2', 'https://www.google.com');
+}
+
+launch_app = async function() {
+  const app = await fin.Application.startFromManifest('http://localhost:9070/rvm.json');
+  return app;
+}
+
+fin.System.on('application-closed', () => {
+  console.warn('application-closed');
+});
+
+test_application_closed = async function() {
+  const app = await launch_app();
+  app.quit();
+}
+
+create_cnn = async function() {
+  const winOption = {
+      name: 'cnn',
+      defaultWidth: 300,
+      defaultHeight: 300,
+      url: 'https://www.cnn.com',
+      frame: true,
+      autoShow: true,
+      waitForPageLoad: false,
+      backgroundColor: '#0000ff'
+  };
+  await fin.Window.create(winOption);
+}
+
+create_window_in_iframe = async function() {
+  const winOption = {
+      name: 'iframe',
+      url: 'https://www.example.com',
+      autoShow: true,
+      _withinIframe: true
+  };
+  await fin.Window.create(winOption);
+
+}
+
+let affinityApp = null;
+
+create_affinity_app = async function() {
+    const config = {
+        uuid: 'aaaa',
+        runtime: {
+            version: '20.89.57.8'
+        },
+        platform: {
+            uuid: 'test-platform',
+            autoShow: true,
+          	processAffinity: 'test',
+            experimental: {
+            	childWindows: true
+        	},
+            defaultWindowOptions: {
+                defaultWidth: 300,
+                defaultHeight: 300,
+                defaultLeft: 0,
+                defaultTop: 0,
+                saveWindowState: false,
+                showBackgroundImages: true,
+                backgroundThrottling: true
+            }
+        },
+        snapshot: {
+            windows: [
+                {
+                    name: 'window_A',
+                    processAffinity: 'foo1',
+                    layout: {
+                        content: [
+                            {
+                                type: 'stack',
+                                id: 'no-drop-target',
+                                content: [
+                                    {
+                                        type: 'component',
+                                        componentName: 'view',
+                                        componentState: {
+                                            name: 'component_A1',
+                                          	processAffinity: 'bar1',
+                                            showDevTools: true,
+                                            url: 'http://example.com'
+                                        }
+                                    }
+
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'window_B',
+                    processAffinity: 'foo2',
+                    layout: {
+                        content: [
+                            {
+                                type: 'stack',
+                                id: 'no-drop-target',
+                                content: [
+                                    {
+                                        type: 'component',
+                                        componentName: 'view',
+                                        componentState: {
+                                            name: 'component_A2',
+                                          	processAffinity: 'bar2',
+                                            showDevTools: true,
+                                            url: 'http://openfin.co'
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    };
+
+  //affinityApp = await fin.Platform.start(config);
+  affinityApp = await fin.Platform.startFromManifest('http://localhost:9070/affinity.json');
+  return affinityApp;
+}
+
+close_affinity_app = async function() {
+  await affinityApp.quit();
+}
+
+start_affinity_test = async function() {
+  for (var i = 0; i < 8; ++i) {
+    console.log(i);
+    console.log('calling fin.Platform.startFromManifest');
+    const app = await fin.Platform.startFromManifest('http://localhost:9070/affinity.json');
+    console.log('fin.Platform.startFromManifest called. Going to sleep for 3s');
+    await sleep(3000);
+    console.log('calling quit');
+    app.quit();
+    console.log('quit called');
+    await sleep(500);
+  }
+  await fin.Platform.startFromManifest('http://localhost:9070/affinity.json');
+}
+
+open_chrome_tracing_in_new_window = async function() {
+  const winOption = {
+      name:'chrome-tracing',
+      defaultWidth: 300,
+      defaultHeight: 300,
+      frame: true,
+      autoShow: true
+  };
+  const win = await fin.Window.create(winOption);
+  win.navigate('chrome://tracing');
+}
+
+var clock_window = undefined;
+var clock_view = undefined;
+
+open_clock_in_new_window = async function() {
+  const winOption = {
+      name:'clock-window',
+      defaultWidth: 300,
+      defaultHeight: 300,
+      frame: true,
+      autoShow: true
+  };
+  clock_window = await fin.Window.create(winOption);
+  clock_view = await fin.View.create({
+      name: 'clock-view',
+      target: clock_window.identity,
+      bounds: {top: 10, left: 10, width: 200, height: 200}
+  });
+  clock_view.navigate('http://localhost:9070/clock.html');
+}
+
+bring_clock_window_to_front = async function() {
+  clock_window.bringToFront();
+  //clock_view.show();
+}
+
+
+
+open_chrome_extensions_in_new_window = async function() {
+  const winOption = {
+      name:'chrome-extensions',
+      defaultWidth: 300,
+      defaultHeight: 300,
+      frame: true,
+      autoShow: true
+  };
+  const win = await fin.Window.create(winOption);
+  win.navigate('chrome://extensions');
+}
+
+load_chrome_extension = async function() {
+  fin.System.updateProxySettings({});
+}
+
+open_unexisting_url = async function() {
+  const winOption = {
+      name:'unexisting-url',
+      defaultWidth: 300,
+      defaultHeight: 300,
+      frame: true,
+      autoShow: true
+  };
+  const win = await fin.Window.create(winOption);
+  win.navigate('http://aaa.bbb');
+}
+
+perform_redirect = async function() {
+  const winOption = {
+      name:'redirect-window',
+      defaultWidth: 300,
+      defaultHeight: 300,
+      frame: true,
+      autoShow: true
+  };
+  const win = await fin.Window.create(winOption);
+  win.navigate('http://localhost:9070/redirect');
+}
+
+create_platform_and_views = async function() {
+  const platform = await fin.Platform.start({
+      uuid: 'platform-1',
+      autoShow: true
+  });
+  for (var i = 0; i < 100; ++i) {
+    console.warn(i);
+    await platform.createWindow({ frame: true });
+  }
+}
+
+set_icons = async function() {
+  /*
+  const win = await fin.Window.getCurrent();
+  const app = await fin.Application.getCurrent();
+  app.setJumpList([
+        {
+            name: 'Tools',
+            items: [
+                {
+                    type: 'task',
+                    title: 'task1',
+                    program: 'notepad.exe'
+                },
+                {
+                    type: 'task',
+                    title: 'task2',
+                    program: 'notepad.exe'
+                }
+            ]
+        }
+    ]);
+    */
+}
+
+animate_window = async function() {
+  const win = await fin.Window.getCurrent();
+    const transitions = {
+        opacity: {
+            opacity: 0.7,
+            duration: 500
+        },
+        position: {
+            top: 100,
+            left: 100,
+            duration: 500,
+            relative: true
+        }
+    };
+    const options = {
+        interrupt: true,
+        tween: 'ease-in'
+    };
+
+  win.animate(transitions, options);
+}
+
+clear_jump_list = async function() {
+  const app = await fin.Application.getCurrent();
+  app.setJumpList(null);
+}
+
+
+memory_consumption = async function() {
+  for (var i = 0; i < 100; ++i) {
+    const options = {
+        name: `child-${i}`,
+        defaultWidth: 300,
+        defaultHeight: 300,
+        url: 'about:blank',
+        frame: true,
+        autoShow: true
+    };
+    const win = await fin.Window.create(options);
+    const view = await fin.View.create({
+        name: 'viewNameCreate', 
+        target: win.identity,
+        name: `view-${i}`,
+        bounds: {top: 10, left: 10, width: 200, height: 200} 
+    });
+    //view.navigate('https://www.example.com');
+  }
+}
+
+window_focus = async function() {
+  win = window.open('about:blank');
+  win.focus();
+}
+
+openfinWindow = null;
+
+create_window_for_disable_resizing = async function() {
+  const winOptions = {
+    url: "https://www.google.com",
+    name: 'child',
+    alwaysOnTop: false,
+    autoShow: true,
+    showTaskbarIcon: false,
+    saveWindowState: false,
+  };
+  openfinWindow = await fin.Window.create(winOptions);
+  openfinWindow.addListener('focused', () => {
+    console.warn('got event focused');
+  });
+  /*
+  openfinWindow = new fin.desktop.Window(winOptions);
+  openfinWindow.addEventListener('focused', () => {
+    console.warn('got event focused')
+  });
+  */
+}
+
+disable_resizing = async function() {
+  openfinWindow.updateOptions({ resizable: false });
+}
+
+enable_resizing = async function() {
+  openfinWindow.updateOptions({ resizable: true });
+}
+
+hide_window = async function() {
+  await openfinWindow.hide();
+}
+
+show_window = async function() {
+  await openfinWindow.show();
+}
+
+focus_window = async function() {
+  await openfinWindow.focus();
+}
+
+fin.System.getVersion().then(runtimeVersion => {
+  document.querySelector('#runtime-version').innerText = runtimeVersion;
+});
 
 </script>
 
@@ -205,15 +885,31 @@ async function launch_tests() {
 <p>No frameworks, libraries or build systems.</p>
 <p>It has unit testing set up (using Karma/Jasmine).</p>
 <p>It also has a ultra simple Node/Express server. Launch it in the Command line with 'node server' from the root directory.</p>
-
+<p>Runtime version: <span id="runtime-version"></span></p>
+<!--
+<a href="mailto:sh-foobar@ubs.com">mailto</a><br><br>
+<a href="sh-foobar@ubs.com" target="_blank" rel="noopener">foobar</a>
+-->
 <!--
 <object data="http://www.africau.edu/images/default/sample.pdf" type="application/pdf" width="500px" height="500px" style="border: 1px solid red;"></object></br>
 -->
 
 <script type="text/javascript" charset="utf-8">
-  fin.System.startCrashReporter({diagnosticMode: true}).then(reporter => console.log(reporter)).catch(err => console.log(err));
-  document.write('Tests filter: <input type="text" id="tests_filter">');
-  document.write('<button onclick="launch_tests();">Launch tests</a><br>');
+  //fin.System.startCrashReporter({diagnosticMode: true}).then(reporter => console.log(reporter)).catch(err => console.log(err));
+  document.write('<button onclick="open_chrome_tracing_in_new_window();">Open chrome://tracing</button><br>');
+  document.write('<button onclick="open_chrome_extensions_in_new_window();">Open chrome://extensions</button><br>');
+  document.write('<button onclick="load_chrome_extension();">Load extension</button><br>');
+  document.write('<button onclick="perform_redirect();">Open redirect page</button><br>');
+  document.write('<button onclick="open_unexisting_url();">Open unexisting url</button><br>');
+  document.write('<button onclick="create_window_for_disable_resizing();">Create window</button><br>');
+  document.write('<button onclick="disable_resizing();">Disable resizing</button><br>');
+  document.write('<button onclick="enable_resizing();">Enable resizing</button><br>');
+  document.write('<button onclick="show_window();">Show window</button><br>');
+  document.write('<button onclick="hide_window();">Hide window</button><br>');
+  document.write('<button onclick="focus_window();">Focus window</button><br>');
+  document.write('<button onclick="crash_browser();">Crash browser</button><br>');
+  document.write('<button onclick="crash_renderer();">Crash renderer</button><br>');
+  
 </script>
 
 </body>
