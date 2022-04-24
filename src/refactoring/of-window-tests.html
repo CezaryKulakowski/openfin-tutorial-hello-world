@@ -1,0 +1,178 @@
+<head>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<script type="text/javascript" charset="utf-8">
+
+g_user_movement_enabled = true;
+g_frame_enabled = false;
+g_title_bar = null;
+g_rounded_corners_enabled = false;
+var g_resize_regions_enabled = [true, true, true, true];
+const SidesEnum = Object.freeze(
+    {
+      "top": 0,
+      "right": 1,
+      "left": 2,
+      "bottom": 3
+    }
+);
+
+async function toggle_user_movement() {
+  const win = await fin.Window.getCurrent();
+  if (g_user_movement_enabled) {
+    await win.disableUserMovement();
+    g_user_movement_enabled = false;
+  } else {
+    await win.enableUserMovement();
+    g_user_movement_enabled = true;
+  }
+  update_status_fields();
+}
+
+async function toggle_frame() {
+  if (!g_title_bar) {
+    g_title_bar = document.getElementById("title-bar");
+  }
+  const main_frame = document.getElementById("of-frame-main");
+  if (g_frame_enabled) {
+    g_frame_enabled = false;
+    main_frame.insertBefore(g_title_bar, main_frame.firstChild);
+  } else {
+    g_frame_enabled = true;
+    main_frame.removeChild(g_title_bar);
+  }
+  const win = await fin.Window.getCurrent();
+  await win.updateOptions({frame: g_frame_enabled});
+  update_status_fields();
+}
+
+async function toggle_rounded_corners() {
+  var corner_rounding_width = 0;
+  var corner_rounding_height = 0;
+  if (g_rounded_corners_enabled) {
+    g_rounded_corners_enabled = false;
+  } else {
+    g_rounded_corners_enabled = true;
+    corner_rounding_width = 65;
+    corner_rounding_height = 90;
+  }
+  const win = await fin.Window.getCurrent();
+  await win.updateOptions(
+      {
+        cornerRounding: {
+          width: corner_rounding_width,
+          height: corner_rounding_height
+        }
+      });
+  update_status_fields();
+}
+
+async function toggle_resize_regions_corners(region) {
+  g_resize_regions_enabled[region] = ! g_resize_regions_enabled[region];
+  const win = await fin.Window.getCurrent();
+  await win.updateOptions(
+      {
+        resizeRegion: {
+          "sides": {
+            top: g_resize_regions_enabled[SidesEnum.top],
+            right: g_resize_regions_enabled[SidesEnum.right],
+            left: g_resize_regions_enabled[SidesEnum.left],
+            bottom: g_resize_regions_enabled[SidesEnum.bottom]
+          }
+        }
+      });
+  update_status_fields();
+}
+
+function update_status_fields() {
+  const user_movement_status_field = document.getElementById("user-movement-status");
+  const user_movement_status = g_user_movement_enabled ? "enabled" : "disabled";
+  user_movement_status_field.innerHTML = user_movement_status;
+
+  const frame_status_field = document.getElementById("frame-status");
+  const frame_status = g_frame_enabled ? "enabled" : "disabled";
+  frame_status_field.innerHTML = frame_status;
+
+  const rounded_corners_status_field = document.getElementById("rounded-corners-status");
+  const rounded_corners_status = g_rounded_corners_enabled ? "enabled" : "disabled";
+  rounded_corners_status_field.innerHTML = rounded_corners_status;
+
+  var resize_region_status_field = document.getElementById("resize-regions-top-status");
+  var resize_region_status = g_resize_regions_enabled[SidesEnum.top] ? "enabled" : "disabled";
+  resize_region_status_field.innerHTML = resize_region_status;
+
+  resize_region_status_field = document.getElementById("resize-regions-right-status");
+  resize_region_status = g_resize_regions_enabled[SidesEnum.right] ? "enabled" : "disabled";
+  resize_region_status_field.innerHTML = resize_region_status;
+
+  resize_region_status_field = document.getElementById("resize-regions-left-status");
+  resize_region_status = g_resize_regions_enabled[SidesEnum.left] ? "enabled" : "disabled";
+  resize_region_status_field.innerHTML = resize_region_status;
+
+  resize_region_status_field = document.getElementById("resize-regions-bottom-status");
+  resize_region_status = g_resize_regions_enabled[SidesEnum.bottom] ? "enabled" : "disabled";
+  resize_region_status_field.innerHTML = resize_region_status;
+}
+
+</script>
+
+<body>
+  <div id="of-frame-main"> 
+    <div id="title-bar">
+      <div class="title-bar-draggable" id="title-bar-draggable">
+        <div id="title">Movable bar</div>
+      </div>
+    </div>
+    <div id="body-container">
+      <div id="layout-container">
+        <table>
+          <tr>
+            <td>Action</td>
+            <td>Current state</td>
+            <td>Description</td>
+          </tr>
+          <tr>
+            <td><button onclick="toggle_user_movement();">Toggle user movement</button></td>
+            <td><div id="user-movement-status"></div></td>
+            <td>Allows/disallows movement of the window with mouse</td>
+          </tr>
+          <tr>
+            <td><button onclick="toggle_frame();">Toggle frame</button></td>
+            <td><div id="frame-status"></div></td>
+            <td>Turns on/off the window frame</td>
+          </tr>
+          <tr>
+            <td><button onclick="toggle_rounded_corners();">Toggle rounded corners</button></td>
+            <td><div id="rounded-corners-status"></div></td>
+            <td>Turns on/off rounded corners</td>
+          </tr>
+          <tr>
+            <td><button onclick="toggle_resize_regions_corners(SidesEnum.top);">Toggle resize regions: top</button></td>
+            <td><div id="resize-regions-top-status"></div></td>
+            <td>Allows/disallows window resize by top border</td>
+          </tr>
+          <tr>
+            <td><button onclick="toggle_resize_regions_corners(SidesEnum.right);">Toggle resize regions: right</button></td>
+            <td><div id="resize-regions-right-status"></div></td>
+            <td>Allows/disallows window resize by right border</td>
+          </tr>
+          <tr>
+            <td><button onclick="toggle_resize_regions_corners(SidesEnum.left);">Toggle resize regions: left</button></td>
+            <td><div id="resize-regions-left-status"></div></td>
+            <td>Allows/disallows window resize by left border</td>
+          </tr>
+          <tr>
+            <td><button onclick="toggle_resize_regions_corners(SidesEnum.bottom);">Toggle resize regions: bottom</button></td>
+            <td><div id="resize-regions-bottom-status"></div></td>
+            <td>Allows/disallows window resize by bottom border</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  update_status_fields();
+  </script>
+</body>

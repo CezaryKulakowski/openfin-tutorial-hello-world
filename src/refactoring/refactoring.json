@@ -1,0 +1,22 @@
+{
+  "devtools_port": 9090,
+  "startup_app": {
+    "name": "OpenFin appseed",
+    "description": "A vanilla appseed for OpenFin applications",
+    "url": "http://localhost:9070/refactoring/of-window-tests.html",
+    "width": 800,
+    "height": 600,
+    "frame": true,
+    "componentName": "browserView",
+    "showDevTools": true,
+    "uuid": "tests-for-openfin-window-features",
+    "autoShow": true,
+    "accelerator": { "devtools": true },
+    "plugins": true
+  },
+  "shortcut": {
+    "company": "OpenFin",
+    "description": "OpenFin appseed",
+    "name": "OpenFin appseed"
+  }
+}

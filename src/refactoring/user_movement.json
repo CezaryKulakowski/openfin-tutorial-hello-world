@@ -1,0 +1,64 @@
+{
+  "devtools_port": 9090,
+  "startup_app": {
+    "name": "OpenFin appseed",
+    "description": "A vanilla appseed for OpenFin applications",
+    "url": "http://localhost:9070/refactoring/user_movement/index.html",
+    "width": 800,
+    "height": 600,
+    "frame": true,
+    "componentName": "browserView",
+    "showDevTools": true,
+    "uuid": "openfin-closing-events-demo",
+    "autoShow": true,
+    "waitForPageLoad": false,
+    "accelerator": { "devtools": true },
+    "plugins": true,
+    "permissions": {
+      "System": {
+        "downloadAsset": true,
+        "getAllExternalWindows": true,
+        "launchExternalProcess": true,
+        "readRegistryValue": true,
+        "terminateExternalProcess": true
+      },
+      "ExternalWindow": {
+        "wrap" : true
+      },
+      "webAPIs": ["notifications"]
+    }
+  },
+  "applicationSettings": {
+    "MyPolicies": {
+      "urls": ["http://localhost:9070/app.json"],
+      "permissions": {
+        "System": {
+          "launchExternalProcess": true
+        }
+      }
+    },
+    "default": {
+      "permissions": {
+        "System": {
+          "downloadAsset": true,
+          "launchExternalProcess": true,
+          "readRegistryValue": true,
+          "terminateExternalProcess": true
+        }
+      }
+    }
+  },
+  "appAssets": [
+     {
+       "src": "http://localhost:9070/assets/calc.zip",
+       "alias": "calc",
+       "target": "_calc.bat",
+       "version": "0.1"
+     }
+  ],
+  "shortcut": {
+    "company": "OpenFin",
+    "description": "OpenFin appseed",
+    "name": "OpenFin appseed"
+  }
+}

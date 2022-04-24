@@ -1,0 +1,92 @@
+:root {
+    /* Colors */
+    --main-background-color: #2A292F;
+    --frame-background-color: white;
+    --body-font-color: black;
+    --title-bar-background-color: var(--main-background-color);
+
+    /* Measurements for various components */
+    --title-bar-height: 30px;
+    --title-bar-border-bottom-height: 1px;
+    --header-border-bottom-height: 2px;
+
+    --body-container-padding-top: 0px;
+    --body-container-padding-right: 0px;
+    --body-container-padding-bottom: 0px;
+    --body-container-padding-left: 0px;
+
+    --body-container-width: calc(100% - var(--body-container-padding-left) - var(--body-container-padding-right));
+    --body-container-height: calc(100% - var(--title-bar-height) - var(--title-bar-border-bottom-height) - var(--body-container-padding-top) - var(--body-container-padding-bottom));
+    --body-container-padding: var(--body-container-padding-top) var(--body-container-padding-right) var(--body-container-padding-bottom) var(--body-container-padding-left);
+
+    --layout-container-padding-top: 4px;
+    --layout-container-padding-right: 4px;
+    --layout-container-padding-bottom: 4px;
+    --layout-container-padding-left: 4px;
+    --layout-container-width: calc(100% - var(--layout-container-padding-left) - var(--layout-container-padding-right));
+    --layout-container-height: calc(100% - var(--header-border-bottom-height) - var(--layout-container-padding-top) - var(--layout-container-padding-bottom));
+    --layout-container-padding: var(--layout-container-padding-top) var(--layout-container-padding-right) var(--layout-container-padding-bottom) var(--layout-container-padding-left);
+}
+
+body {
+    min-height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0px;
+    overflow: hidden;
+    color: var(--body-font-color);
+}
+
+html {
+    height: 100%;
+    width: 100%;
+    padding: 0px;
+    margin: 0;
+    overflow: hidden;
+}
+
+#of-frame-main {
+    height: 100%;
+    width: 100%;
+    padding: 0px;
+    margin: 0;
+    position: absolute;
+    overflow: hidden;
+    background-color: var(--frame-background-color);
+}
+
+#title {
+    color: lightgrey;
+}
+
+#title-bar {
+    background: var(--title-bar-background-color);
+    width: 100%;
+    height: var(--title-bar-height);
+    display: flex;
+    border-bottom: var(--title-bar-border-bottom-height) solid rgba(255, 255, 255, 0.1);
+}
+
+.title-bar-draggable {
+    position: relative;
+    flex-grow: 1;
+    margin: 7px 0 0 7px; /* leave grabbable margin for resize */
+    -webkit-app-region: drag;
+    -webkit-user-select: none;
+}
+
+#body-container {
+    height: var(--body-container-height);
+    width: var(--body-container-width);
+    padding: var(--body-container-padding);
+}
+
+#layout-container {
+    height: var(--layout-container-height);
+    width: var(--layout-container-width);
+    padding: var(--layout-container-padding);
+}
+
+td {
+    padding:0 15px;
+}

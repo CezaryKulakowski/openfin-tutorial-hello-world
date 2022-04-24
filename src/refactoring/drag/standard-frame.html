@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+
+    <body>
+        <div id="of-frame-main">
+            <div id="title-bar">
+                <div class="title-bar-draggable">
+                    <div id="title"></div>
+                </div>
+                <div id="buttons-wrapper">
+                    <div class="button" title="Minimize Window" id="minimize-button"></div>
+                    <div class="button" title="Maximize Window" id="expand-button"></div>
+                    <div class="button" title="Close Window" id="close-button"></div>
+                </div>
+            </div>
+            <div id="body-container">
+                <div id="layout-container"></div>
+            </div>
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    fin.Platform.Layout.init();
+                });
+                ///////////////////////
+                // UI initialization //
+                ///////////////////////
+                const setupFrameButtons = () => {
+                    const win = fin.Window.getCurrentSync();
+
+                    const onClose = () => win.close();
+                    const onMinimize = () => win.minimize();
+                    const onMaximize = async () => win.getState().then(state => state === 'maximized' ? win.restore() : win.maximize());
+
+                    const closeButton = document.getElementById('close-button');
+                    const minimizeButton = document.getElementById('minimize-button');
+                    const expandButton = document.getElementById('expand-button');
+
+                    closeButton.addEventListener('click', onClose);
+                    minimizeButton.addEventListener('click', onMinimize);
+                    expandButton.addEventListener('click', onMaximize);
+                };
+
+                ////////////////////////
+                // Custom CSS support //
+                ////////////////////////
+                async function getDefaultStylesheetUrl () {
+                    const { initialOptions: { defaultWindowOptions = {} } } = await fin.Application.getCurrentSync().getInfo();
+                    return defaultWindowOptions.stylesheetUrl;
+                }
+
+                const injectCustomStyles = async () => {
+                    const {stylesheetUrl: winStyle} = await fin.Window.getCurrentSync().getOptions();
+                    const stylesheetUrl = winStyle || await getDefaultStylesheetUrl();
+                    if(stylesheetUrl) {
+                        injectCssToBody(stylesheetUrl);
+                    }
+                }
+                const injectCssToBody = url => {
+                    const css = document.createElement('link');
+                    css.rel = 'stylesheet';
+                    css.type = 'text/css';
+                    css.href= url;
+
+                    document.head.appendChild(css);
+                }
+
+                //////////
+                // Init //
+                //////////
+                setupFrameButtons();                
+                injectCustomStyles();
+            </script>
+        </div>
+    </body>
+</html>
